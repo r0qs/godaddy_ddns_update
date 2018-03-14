@@ -34,7 +34,7 @@ if ip_change?; then
     if [ "${http_status}" == "200" ]; then
       echo "IP successfully updated."
     else
-      echo "Something goes wrong, the status request was: ${http_status}"
+      echo "Something goes wrong, the http status was: ${http_status}"
     fi
   done
 fi
