@@ -1,0 +1,15 @@
+{
+  "api_key": "PUT YOUR KEY HERE",
+  "api_secret": "PUT YOUR SECRET HERE",
+  "domain": "PUT YOUR DOMAIN HERE",
+  "records": [
+    {
+      "type": "A",
+      "name": "@"
+    },
+    {
+      "type": "CNAME",
+      "name": "www"
+    }
+  ]
+}

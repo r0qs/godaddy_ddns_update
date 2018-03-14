@@ -1,0 +1,40 @@
+#!/bin/bash
+
+if ! type "jq" > /dev/null; then
+  echo "jq is required! Please install it before use this script."
+  echo "You can download from here: https://stedolan.github.io/jq/"
+  exit 1
+fi
+
+echo $1
+
+if [ $# -eq 0 ] || [ -z "$1" ] || [ ! -f "$1" ]; then
+  echo "Usage: godaddy-ddns config_file.json"
+  exit 1
+fi
+
+config_file=$1
+eval "$(jq -r '{api_key, api_secret, domain} | to_entries | .[] | .key + "=\"" + .value + "\""' < ${config_file})"
+records=$(jq '.records' < ${config_file})
+domain_ip=$(ping -c 1 ${domain} | awk -F '[()]' '{print $2}' | head -1)
+local_ip=$(curl -s -X GET ipinfo.io/ip)
+
+ip_change?() {
+  echo "Checking for IP address change for $domain ..."
+  echo "Actual IP: ${local_ip} --- Godaddy IP: ${domain_ip}"
+  test ${local_ip} != ${domain_ip}
+}
+
+if ip_change?; then
+  for record in $(cat ${config_file} | jq -c '.records[]'); do
+    type=$(echo ${record} | jq -r '.type')
+    name=$(echo ${record} | jq -r '.name')
+    echo "Updating ${domain}/records/${type}/${name} to new IP address ${local_ip} ..."
+    http_status=$(curl -w %{http_code} -o /dev/null -s -X PUT -H "Authorization: sso-key ${api_key}:${api_secret}" -H "Content-Type: application/json" -d '{"data":"'$local_ip'","ttl":600}' "https://api.godaddy.com/v1/domains/${domain}/records/${type}/${name}")
+    if [ "${http_status}" == "200" ]; then
+      echo "IP successfully updated."
+    else
+      echo "Something goes wrong, the status request was: ${http_status}"
+    fi
+  done
+fi

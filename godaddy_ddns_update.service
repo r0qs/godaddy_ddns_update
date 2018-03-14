@@ -1,0 +1,9 @@
+[Unit]
+Description=Godaddy DDNS IP update
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/godaddy_ddns_update /etc/godaddy_ddns_update/ddns_data.json
+
+[Install]
+WantedBy=default.target
