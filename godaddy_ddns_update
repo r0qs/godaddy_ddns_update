@@ -20,8 +20,6 @@ domain_ip=$(ping -c 1 ${domain} | awk -F '[()]' '{print $2}' | head -1)
 local_ip=$(curl -s -X GET ipinfo.io/ip)
 
 ip_change?() {
-  echo "Checking for IP address change for $domain ..."
-  echo "Actual IP: ${local_ip} --- Godaddy IP: ${domain_ip}"
   test ${local_ip} != ${domain_ip}
 }
 
