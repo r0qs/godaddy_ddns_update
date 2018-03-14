@@ -6,8 +6,6 @@ if ! type "jq" > /dev/null; then
   exit 1
 fi
 
-echo $1
-
 if [ $# -eq 0 ] || [ -z "$1" ] || [ ! -f "$1" ]; then
   echo "Usage: godaddy-ddns config_file.json"
   exit 1
